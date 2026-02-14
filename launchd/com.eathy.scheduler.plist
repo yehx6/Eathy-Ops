@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.eathy.scheduler</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/zeke/agent dome/eathy-xhs/.venv/bin/eathy</string>
+        <string>schedule</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>/Users/zeke/agent dome/eathy-xhs</string>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>KeepAlive</key>
+    <true/>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/Users/zeke/agent dome/eathy-xhs/.venv/bin:/usr/local/bin:/usr/bin:/bin</string>
+    </dict>
+
+    <key>StandardOutPath</key>
+    <string>/Users/zeke/agent dome/eathy-xhs/data/logs/scheduler-stdout.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/Users/zeke/agent dome/eathy-xhs/data/logs/scheduler-stderr.log</string>
+</dict>
+</plist>

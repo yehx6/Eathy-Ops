@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.eathy.mcp</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/zeke/agent dome/eathy-xhs/tools/xiaohongshu-mcp-darwin-arm64</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>/Users/zeke/agent dome/eathy-xhs/tools</string>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>KeepAlive</key>
+    <true/>
+
+    <key>StandardOutPath</key>
+    <string>/Users/zeke/agent dome/eathy-xhs/data/logs/mcp-stdout.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/Users/zeke/agent dome/eathy-xhs/data/logs/mcp-stderr.log</string>
+</dict>
+</plist>

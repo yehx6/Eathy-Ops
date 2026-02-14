@@ -1,0 +1,72 @@
+# Eathy 小红书自动化配置
+# API Key 使用 ${ENV_VAR} 引用环境变量
+
+# MiniMax API — 用于信息筛选 + 文案生成（Anthropic 兼容接口）
+minimax:
+  api_key: ${MINIMAX_API_KEY}
+  model: MiniMax-M2.5
+  base_url: https://api.minimax.io/anthropic
+
+# Gemini 图片生成 — 通过 Gemini 原生接口 (12ai)
+imagen:
+  api_key: ${IMAGEN_API_KEY}
+  model: gemini-3-pro-image-preview
+  number_of_images: 3
+  image_size: "3:4"  # Gemini 原生接口使用宽高比字符串
+  base_url: https://new.12ai.org
+
+# 信息采集
+collect:
+  rss_feeds:
+    - name: "FDA Food Safety"
+      url: "https://www.fda.gov/about-fda/contact-fda/stay-informed/rss-feeds/food-safety-recalls/rss.xml"
+      lang: en
+    - name: "Healthline Nutrition"
+      url: "https://www.healthline.com/rss/nutrition"
+      lang: en
+    - name: "EWG News"
+      url: "https://www.ewg.org/rss.xml"
+      lang: en
+    - name: "Medical News Today"
+      url: "https://www.medicalnewstoday.com/rss/nutrition-news.xml"
+      lang: en
+  news_api:
+    api_key: ${NEWS_API_KEY}
+    queries:
+      - "食品安全 成分"
+      - "food ingredient safety"
+      - "cosmetic ingredient analysis"
+      - "健康饮食 配料表"
+      - "food additive health"
+    language: ["zh", "en"]
+    max_results: 20
+  max_age_hours: 48
+
+# 内容筛选
+filter:
+  max_candidates: 15
+  relevance_threshold: 0.7
+
+# 发布
+publish:
+  mcp_server_url: "http://localhost:18060/mcp"
+  images_per_post: 3
+  dry_run: false
+
+# 输出
+output:
+  dir: ./output
+  history_file: ./data/history.json
+  log_dir: ./data/logs
+
+# 定时调度
+schedule:
+  times: ["08:00", "12:00", "20:00"]
+  jitter_minutes: 30
+  timezone: Asia/Shanghai
+
+# 提示词配置
+prompts:
+  filter: prompts/filter/default.yaml
+  copywrite: prompts/copywrite/styles.yaml
+  image: prompts/image/styles.yaml

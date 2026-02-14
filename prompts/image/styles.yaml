@@ -1,0 +1,44 @@
+styles:
+  - id: "ingredient_analysis"
+    name: "极简成分"
+    description: "清洁、现代的信息图表风格，适合成分分析，白色背景。"
+    prompt: >
+      A clean, modern infographic style image showing food ingredient analysis.
+      {subject} on a bright white background. Soft studio lighting.
+      Minimalist health-conscious aesthetic. No text overlay.
+      High quality product photography style.
+
+  - id: "food_warning"
+    name: "警示避雷"
+    description: "戏剧性红黑配色，适合食品避雷，强调对比和警示感。"
+    prompt: >
+      A dramatic close-up of {subject} with warning red accent lighting.
+      Split composition: healthy vs unhealthy comparison.
+      Clean minimal background.
+      Professional food photography. No text.
+
+  - id: "brand_teardown"
+    name: "品牌拆解"
+    description: "适合连锁品牌食品分析，大理石背景，专业平铺摄影。"
+    prompt: >
+      A stylized flat-lay photograph of {subject} from a popular chain restaurant.
+      Nutrition facts label visible. Clean white marble background.
+      Professional food photography. No text overlay.
+
+  - id: "lifestyle_fresh"
+    name: "清新生活"
+    description: "自然光、木质纹理，适合健康替代推荐，给人愉悦感。"
+    prompt: >
+      Fresh and vibrant arrangement of {subject}.
+      Natural lighting, wooden table background.
+      Healthy lifestyle aesthetic. Inviting colors.
+      No text overlay.
+
+  - id: "editorial_bold"
+    name: "杂志大片"
+    description: "大胆构图，适合热点话题，视觉冲击力强。"
+    prompt: >
+      Eye-catching editorial style image about {subject}.
+      Bold composition, modern graphic design feel.
+      Health and wellness theme. Clean background.
+      No text.

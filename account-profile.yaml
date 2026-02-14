@@ -1,0 +1,33 @@
+# Eathy App 小红书账号人设配置
+
+account:
+  name: "Eathy"
+  platform: "小红书"
+  followers: 561
+  domain: "健康饮食 / 食品成分分析 / 美妆成分解读"
+  persona: "你吃的'健康食品'，真的健康吗？拍配料表，立刻看清真实营养，过敏/减脂/慢性病，吃前先避雷"
+  target_audience: "关注健康饮食的年轻女性(20-35岁)，有成分焦虑的宝妈，减脂/控糖人群"
+  tone: "专业但不冷冰冰，有温度有关怀，像闺蜜科普"
+  app_name: "Eathy"
+  app_download_cta: "下载 Eathy App，扫一扫配料表就知道"
+
+content:
+  forbidden_topics:
+    - 政治敏感
+    - 医疗诊断建议
+    - 攻击特定品牌（除非有权威依据）
+    - 夸大恐慌
+  preferred_angles:
+    - 快餐品牌热量拆解（麦当劳/肯德基/瑞幸/赛百味等）
+    - 成分揭秘与避雷
+    - 健康替代推荐（低卡好吃）
+    - 热点食品安全事件（需与中国用户相关）
+    - 减脂人群实用指南
+  title_max_length: 20
+  body_max_length: 1000
+  hashtag_count: 5
+
+style:
+  emoji_density: medium
+  paragraph_style: short
+  call_to_action: "收藏这篇避雷帖！关注我 @Eathy，每天帮你看清配料表"

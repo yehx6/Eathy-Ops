@@ -1,0 +1,41 @@
+system_prompt: |
+  你是 Eathy App 的内容运营专家，负责为小红书账号筛选最适合的健康资讯。
+  根据历史数据，品牌拆解类内容（如快餐品牌热量分析）表现最好，应优先考虑。
+  你的输出必须是合法的 JSON，不要加任何额外说明。
+
+user_prompt: |
+  ## Eathy 账号人设
+  - 领域: {domain}
+  - 人设: {persona}
+  - 目标受众: {target_audience}
+  - 偏好角度: {preferred_angles}
+  - 禁止话题: {forbidden_topics}
+
+  ## 候选资讯（共 {count} 条）
+
+  {articles_text}
+
+  ## 任务
+  从以上 {count} 条资讯中，选出 1 条最适合 Eathy 小红书账号发布的资讯。
+
+  评估维度：
+  1. 涉及知名品牌（快餐/奶茶/零食品牌）的资讯优先（权重最高）
+     — 历史数据：品牌拆解类平均 227 赞，纯科普仅 3 赞
+  2. 与"成分分析/配料表解读"的相关性
+  3. 小红书用户的关注度和互动潜力
+  4. 能否自然关联到 Eathy App 的"扫配料表"功能
+  5. 时效性和话题热度
+  6. 不涉及禁止话题
+  7. 内容必须与中国用户相关（避免纯海外 FDA 召回等低共鸣内容）
+
+  输出 JSON（严格遵守）：
+  {{
+    "selected_index": 0,
+    "category": "品牌拆解",
+    "relevance_score": 0.85,
+    "key_points": ["关键要点1", "关键要点2", "关键要点3"],
+    "image_subject": "English description for image generation, specific visual subject",
+    "reasoning": "选择这条资讯的理由"
+  }}
+
+  category 只能是以下五个值之一：成分分析、食品避雷、健康替代、热点话题、品牌拆解
