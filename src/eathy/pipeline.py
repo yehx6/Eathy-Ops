@@ -94,7 +94,7 @@ class Pipeline:
         self._profile_path = Path(profile_path)
         self._templates_path = Path(templates_path)
 
-    async def run(self, dry_run: bool = False) -> PipelineResult:
+    async def run(self, dry_run: bool = False, skip_images: bool = False) -> PipelineResult:
         """执行完整管道：采集 → 筛选 → 生图 → 文案 → 发布"""
         started_at = datetime.now(timezone.utc).isoformat()
         run_id = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:6]}"
@@ -105,11 +105,20 @@ class Pipeline:
         
         # 共享 AI Provider
         minimax_cfg = config["minimax"]
-        ai_provider = MinimaxProvider(
-            api_key=minimax_cfg["api_key"],
-            model=minimax_cfg.get("model", "MiniMax-M2.5"),
-            base_url=minimax_cfg.get("base_url", "https://api.minimax.io/anthropic"),
-        )
+        api_type = minimax_cfg.get("api_type", "anthropic")
+        if api_type == "openai":
+            from .providers import OpenAICompatProvider
+            ai_provider = OpenAICompatProvider(
+                api_key=minimax_cfg["api_key"],
+                model=minimax_cfg.get("model", "deepseek-chat"),
+                base_url=minimax_cfg.get("base_url", "https://api.deepseek.com"),
+            )
+        else:
+            ai_provider = MinimaxProvider(
+                api_key=minimax_cfg["api_key"],
+                model=minimax_cfg.get("model", "MiniMax-M2.5"),
+                base_url=minimax_cfg.get("base_url", "https://api.minimax.io/anthropic"),
+            )
         
         # 初始化样式管理器
         from .prompts import StyleManager
@@ -143,17 +152,32 @@ class Pipeline:
         console.print(f"    配图风格: [cyan]{img_style.name}[/] ({img_style.description})")
 
         # 阶段 4: 图片生成
-        console.print("[bold]4/6[/] 生成小红书配图...")
-        imagen_cfg = config["imagen"]
-        imagen = ImagenGenerator(
-            api_key=imagen_cfg["api_key"],
-            model=imagen_cfg.get("model", "gemini-3-pro-image-preview"),
-            number_of_images=imagen_cfg.get("number_of_images", 3),
-            image_size=imagen_cfg.get("image_size", "3:4"),
-            base_url=imagen_cfg.get("base_url", "https://new.12ai.org"),
-        )
-        images = await imagen.generate(filter_result, images_dir, img_style)
-        console.print(f"    生成 {len(images)} 张图片")
+        if skip_images:
+            console.print("[bold]4/6[/] 跳过图片生成（--no-images）")
+            images: list[Path] = []
+        else:
+            console.print("[bold]4/6[/] 生成小红书配图...")
+            imagen_cfg = config["imagen"]
+            imagen_api_type = imagen_cfg.get("api_type", "gemini")
+            if imagen_api_type == "doubao":
+                from .image.doubao import DoubaoImageGenerator
+                imagen = DoubaoImageGenerator(
+                    api_key=imagen_cfg["api_key"],
+                    model=imagen_cfg.get("model", "doubao-seedream-4-5-251128"),
+                    number_of_images=imagen_cfg.get("number_of_images", 3),
+                    image_size=imagen_cfg.get("image_size", "2048x2720"),
+                    base_url=imagen_cfg.get("base_url", "https://ark.cn-beijing.volces.com/api/v3"),
+                )
+            else:
+                imagen = ImagenGenerator(
+                    api_key=imagen_cfg["api_key"],
+                    model=imagen_cfg.get("model", "gemini-3-pro-image-preview"),
+                    number_of_images=imagen_cfg.get("number_of_images", 3),
+                    image_size=imagen_cfg.get("image_size", "3:4"),
+                    base_url=imagen_cfg.get("base_url", "https://new.12ai.org"),
+                )
+            images = await imagen.generate(filter_result, images_dir, img_style)
+            console.print(f"    生成 {len(images)} 张图片")
 
         # 阶段 5: 文案生成
         console.print("[bold]5/6[/] 生成小红书文案...")
@@ -168,6 +192,8 @@ class Pipeline:
         publisher = XhsPublisher(
             mcp_server_url=publish_cfg.get("mcp_server_url", "http://localhost:18060"),
             dry_run=dry_run or publish_cfg.get("dry_run", False),
+            images_host_dir=publish_cfg.get("images_host_dir", ""),
+            images_container_dir=publish_cfg.get("images_container_dir", "/app/images"),
         )
         publish_result = await publisher.publish(copywrite, images)
         console.print(f"    状态: [bold]{publish_result.status.value}[/]")

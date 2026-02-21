@@ -21,10 +21,11 @@ def cli():
 
 @cli.command()
 @click.option("--dry-run", is_flag=True, help="只生成内容，不实际发布到小红书")
+@click.option("--no-images", is_flag=True, help="跳过图片生成阶段")
 @click.option("--config", default="config.yaml", show_default=True, help="配置文件路径")
 @click.option("--profile", default="account-profile.yaml", show_default=True, help="账号人设文件路径")
 @click.option("--templates", default="prompt-templates.yaml", show_default=True, help="图片提示词模板路径")
-def run(dry_run: bool, config: str, profile: str, templates: str):
+def run(dry_run: bool, no_images: bool, config: str, profile: str, templates: str):
     """执行一次完整的内容生成和发布管道"""
     from .pipeline import Pipeline
 
@@ -35,7 +36,7 @@ def run(dry_run: bool, config: str, profile: str, templates: str):
             templates_path=templates,
         )
         try:
-            result = await pipeline.run(dry_run=dry_run)
+            result = await pipeline.run(dry_run=dry_run, skip_images=no_images)
             return result
         except Exception as exc:
             console.print(f"[bold red]管道执行失败:[/] {exc}")

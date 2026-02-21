@@ -3,17 +3,19 @@
 
 # MiniMax API — 用于信息筛选 + 文案生成（Anthropic 兼容接口）
 minimax:
+  api_type: openai   # anthropic | openai
   api_key: ${MINIMAX_API_KEY}
-  model: MiniMax-M2.5
-  base_url: https://api.minimax.io/anthropic
+  model: ep-20250519074358-62ktw
+  base_url: https://ark.cn-beijing.volces.com/api/v3/chat/completions
 
-# Gemini 图片生成 — 通过 Gemini 原生接口 (12ai)
+# 图片生成 — api_type: gemini (默认) | doubao
 imagen:
+  api_type: doubao
   api_key: ${IMAGEN_API_KEY}
-  model: gemini-3-pro-image-preview
+  model: doubao-seedream-4-5-251128
   number_of_images: 3
-  image_size: "3:4"  # Gemini 原生接口使用宽高比字符串
-  base_url: https://new.12ai.org
+  image_size: "2048x2720"  # doubao 用像素尺寸(最小3686400px)，gemini 用宽高比如 "3:4"
+  base_url: https://ark.cn-beijing.volces.com/api/v3/images/generations
 
 # 信息采集
 collect:
@@ -50,6 +52,8 @@ filter:
 # 发布
 publish:
   mcp_server_url: "http://localhost:18060/mcp"
+  images_host_dir: "E:/rss/xiaohongshu_mcp/images"    # 宿主机挂载目录
+  images_container_dir: "/app/images"                   # Docker 容器内路径
   images_per_post: 3
   dry_run: false
 

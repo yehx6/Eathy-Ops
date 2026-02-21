@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import shutil
 from datetime import datetime, timezone
+from pathlib import Path
 
 import httpx
 
@@ -23,13 +25,21 @@ class XhsPublisher:
     默认监听 http://localhost:18060
     """
 
-    def __init__(self, mcp_server_url: str = "http://localhost:18060", dry_run: bool = False) -> None:
+    def __init__(
+        self,
+        mcp_server_url: str = "http://localhost:18060",
+        dry_run: bool = False,
+        images_host_dir: str = "",
+        images_container_dir: str = "/app/images",
+    ) -> None:
         # 兼容 config 中 URL 带不带 /mcp 的情况
         base = mcp_server_url.rstrip("/")
         if base.endswith("/mcp"):
             base = base[:-4]
         self._base_url = base
         self._dry_run = dry_run
+        self._images_host_dir = Path(images_host_dir) if images_host_dir else None
+        self._images_container_dir = images_container_dir
 
     async def _create_session(self, client: httpx.AsyncClient) -> str:
         """初始化 MCP 会话，返回 session ID"""
@@ -64,10 +74,10 @@ class XhsPublisher:
         """通过 MCP Streamable HTTP 协议调用工具（完整会话流程）"""
         url = f"{self._base_url}/mcp"
 
-        async with httpx.AsyncClient(timeout=120.0) as client:
+        async with httpx.AsyncClient(timeout=30.0, trust_env=False) as client:
             session_id = await self._create_session(client)
 
-            # Step 3: tools/call
+            # Step 3: tools/call — 发布操作可能需要较长时间（浏览器自动化上传图片）
             response = await client.post(
                 url,
                 headers={"Mcp-Session-Id": session_id},
@@ -80,6 +90,7 @@ class XhsPublisher:
                     },
                     "id": 2,
                 },
+                timeout=600.0,
             )
             response.raise_for_status()
             result = response.json()
@@ -137,21 +148,24 @@ class XhsPublisher:
                 error_message="小红书未登录，请先运行 xiaohongshu-mcp 并完成登录",
             )
 
-        # 构建发布参数 — 使用绝对路径（MCP 服务可能在不同 cwd）
-        image_paths = [str(img.path.resolve()) for img in images]
+        # 构建图片路径 — MCP 在 Docker 中时需复制到挂载目录并使用容器内路径
+        if self._images_host_dir:
+            self._images_host_dir.mkdir(parents=True, exist_ok=True)
+            image_paths = []
+            for img in images:
+                dest = self._images_host_dir / img.path.name
+                shutil.copy2(img.path, dest)
+                image_paths.append(f"{self._images_container_dir}/{img.path.name}")
+        else:
+            image_paths = [str(img.path.resolve()) for img in images]
         tags = list(copywrite.hashtags)
-
-        # 正文拼接标签（小红书风格）
-        body_with_tags = copywrite.body
-        if tags:
-            tag_text = " ".join(f"#{tag}" for tag in tags)
-            body_with_tags = f"{copywrite.body}\n\n{tag_text}"
 
         try:
             result = await self._call_mcp_tool("publish_content", {
                 "title": copywrite.title,
-                "content": body_with_tags,
+                "content": copywrite.body,
                 "images": image_paths,
+                "tags": tags,
             })
             content = result.get("content", [{}])
             text = content[0].get("text", "") if content else ""
@@ -170,5 +184,5 @@ class XhsPublisher:
                 published_at=published_at,
                 copywrite=copywrite,
                 images=images,
-                error_message=str(exc),
+                error_message=str(exc) or type(exc).__name__,
             )
